@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feliz cumpleaños</title>
+  <link rel="icon" href="assets/icon.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <!-- Reproductor de música de fondo -->
+  <audio id="musicaFondo" src="assets/silversoul.mp3" preload="auto" loop></audio>
+
+  <!-- Control de volumen estilo YouTube (empieza oculto) -->
+  <div class="control-audio" id="controlAudio" hidden>
+    <button type="button" class="control-audio__btn" id="btnMute" aria-label="Silenciar">
+      <span aria-hidden="true">🔊</span>
+    </button>
+    <input type="range" class="control-audio__range" id="rangoVolumen" min="0" max="100" value="50" aria-label="Volumen">
+  </div>
+
+  <!-- Iconos reutilizables (estrella, luna, sol) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-star" viewBox="0 0 24 24">
+        <path d="M12 2l2.9 6.6 7.1.7-5.4 4.8 1.6 7L12 17.3 5.8 21.1l1.6-7L2 9.3l7.1-.7z"/>
+      </symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24">
+        <path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z"/>
+      </symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="4.6"/>
+        <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 1.8v3M12 19.2v3M1.8 12h3M19.2 12h3M4.8 4.8l2.1 2.1M17.1 17.1l2.1 2.1M4.8 19.2l2.1-2.1M17.1 6.9l2.1-2.1"/>
+        </g>
+      </symbol>
+      <symbol id="i-ghost" viewBox="0 0 24 24">
+        <path fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5V21l2.5-2.1 2.5 2.1 2.5-2.1 2.5 2.1 2.5-2.1 2.5 2.1V9.5A7.5 7.5 0 0 0 12 2zM9.2 8.4a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2zm5.6 0a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2z"/>
+      </symbol>
+      <symbol id="i-photo" viewBox="0 0 24 24">
+        <path fill-rule="evenodd" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm1.2 13h13.6l-4.3-5.8-3.4 4.4-2.1-2.6L5.2 17zM16.5 7.2a1.7 1.7 0 1 1-3.4 0 1.7 1.7 0 0 1 3.4 0z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- Decoración flotante (la genera script.js) -->
+  <div class="deco" id="deco" aria-hidden="true"></div>
+
+  <!-- Ondas de sonido a los lados (se dibujan solo mientras suena la música) -->
+  <canvas class="ondas" id="ondas" aria-hidden="true"></canvas>
+
+  <!-- ========== VISTA 1: INICIO + LÍNEA DEL TIEMPO ========== -->
+  <div id="vistaPrincipal">
+
+    <header class="hero" id="inicio">
+      <p class="hero__small" id="heroPequeno"></p>
+      <h1 class="hero__big" id="heroGrande"></h1>
+      <p class="hero__small hero__small--bottom" id="heroSubtitulo"></p>
+      <p class="hero__small hero__aviso" id="heroAviso"></p>
+      <button type="button" class="btn btn--main" id="btnIniciar"></button>
+    </header>
+
+    <main class="recorrido" id="recorrido" hidden>
+      <h2 class="recorrido__titulo" id="recorridoTitulo"></h2>
+      <p class="hero__small recorrido__aviso" id="recorridoAviso"></p>
+      <ol class="timeline" id="timeline"></ol>
+      <p class="recorrido__fin" id="recorridoFin"></p>
+
+      <!-- Video del final (se configura en script.js, bloque "video") -->
+      <section class="video" id="videoSeccion" aria-labelledby="videoTitulo">
+        <h3 class="video__titulo" id="videoTitulo"></h3>
+        <div class="video__marco">
+          <video id="videoRegalo" controls preload="metadata" playsinline></video>
+          <p class="video__aviso" id="videoAviso" role="status" hidden></p>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <!-- ========== VISTA 2: SECCIONES EXTRA (datos / sabías que) ========== -->
+  <section class="detalle" id="vistaDetalle" hidden aria-labelledby="detalleTitulo">
+    <button type="button" class="btn btn--back" id="btnVolver">
+      <span aria-hidden="true">←</span> Volver
+    </button>
+    <div class="detalle__contenido" id="detalleContenido"></div>
+  </section>
+
+  <!-- ========== ÁLBUM DE FOTOS DE CADA RECUERDO (ventana encima de la línea) ========== -->
+  <div class="album" id="album" hidden role="dialog" aria-modal="true" aria-labelledby="albumTitulo">
+    <div class="album__fondo" data-cerrar></div>
+    <div class="album__caja">
+      <header class="album__cab">
+        <div>
+          <h2 class="album__titulo" id="albumTitulo"></h2>
+          <p class="album__fecha" id="albumFecha"></p>
+        </div>
+        <button type="button" class="album__cerrar" id="albumCerrar" aria-label="Cerrar álbum">✕</button>
+      </header>
+      <div class="album__visor">
+        <button type="button" class="album__nav album__nav--prev" id="albumPrev" aria-label="Foto anterior">‹</button>
+        <div class="album__marco" id="albumMarco"></div>
+        <button type="button" class="album__nav album__nav--next" id="albumNext" aria-label="Foto siguiente">›</button>
+      </div>
+      <p class="album__pie" id="albumPie" aria-live="polite"></p>
+      <div class="album__minis" id="albumMinis"></div>
+    </div>
+  </div>
+
+  <!-- ========== JUMPSCARE: imagen a pantalla completa (después de la cuenta regresiva) ========== -->
+  <div class="susto" id="susto" hidden role="dialog" aria-modal="true" aria-label="Jumpscare">
+    <button type="button" class="susto__cerrar" id="sustoCerrar">✕ Cerrar</button>
+    <div class="susto__marco" id="sustoMarco"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
